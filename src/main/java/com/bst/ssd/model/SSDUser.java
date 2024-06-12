@@ -20,6 +20,7 @@ import java.util.List;
 @Table(name = "SSDUser")
 @Scope("prototype")
 public class SSDUser {
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private int userId;
     @Column(unique = true)
