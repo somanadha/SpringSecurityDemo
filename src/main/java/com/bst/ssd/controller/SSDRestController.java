@@ -49,14 +49,22 @@ public class SSDRestController {
 
     @PostMapping("login")
     public String loginUser(@RequestBody SSDUserDetails userDetails){
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword()));
+        String message = "Login Failed";
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword()));
 
-        if (authentication != null && authentication.isAuthenticated()) {
-            return jwtService.generateToken(userDetails.getUsername());
+            if (authentication != null && authentication.isAuthenticated()) {
+                message = "Login Success. JWT Token: " + jwtService.generateToken(userDetails.getUsername());
+            }
+            else {
+                message += ": Unknown Reason For Authentication Failure";
+            }
         }
-        else {
-            return"Login Failed";
+        catch (Exception ex) {
+            System.out.println("Exception in Authenticating: "+ex);
+            message += ": "+ex.getMessage();
         }
+        return message;
     }
 }

@@ -19,14 +19,6 @@ public class SSDUserDetailsService implements UserDetailsService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
-    public SSDUserDetails save(SSDUserDetails userDetails) {
-        System.out.println("User Name:"+ userDetails.getUsername());
-        System.out.println("Password Before Encryption:"+ userDetails.getPassword());
-        userDetails.setPassword(passwordEncoder.encode(userDetails.getPassword()));
-        System.out.println("Password After Encryption:"+ userDetails.getPassword());
-        return repository.save(userDetails);
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SSDUserDetails userDetails = repository.findByUsername(username);
@@ -36,6 +28,14 @@ public class SSDUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(errorMessage);
         }
         return userDetails;
+    }
+
+    public SSDUserDetails save(SSDUserDetails userDetails) {
+        System.out.println("User Name:"+ userDetails.getUsername());
+        System.out.println("Password Before Encryption:"+ userDetails.getPassword());
+        userDetails.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+        System.out.println("Password After Encryption:"+ userDetails.getPassword());
+        return repository.save(userDetails);
     }
 
     public Iterable<String> getUsernameList() {
