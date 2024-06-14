@@ -1,9 +1,14 @@
 package com.bst.ssd.controller;
 
-import com.bst.ssd.model.SSDUser;
-import com.bst.ssd.service.SSDUserService;
+import com.bst.ssd.model.SSDUserDetails;
+import com.bst.ssd.service.SSDJwtService;
+import com.bst.ssd.service.SSDUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class SSDRestController {
 
     @Autowired
-    private SSDUserService userService;
+    private SSDUserDetailsService userDetailsService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private SSDJwtService jwtService;
+
+    @GetMapping("users")
+    public Iterable<String> getUsernameList(){
+        return userDetailsService.getUsernameList();
+    }
 
     @GetMapping("hello")
     public String respondToHello(HttpServletRequest request) {
@@ -27,7 +43,20 @@ public class SSDRestController {
     }
 
     @PostMapping("register")
-    public SSDUser registerUser(@RequestBody SSDUser user){
-        return userService.save(user);
+    public SSDUserDetails registerUser(@RequestBody SSDUserDetails userDetails){
+        return userDetailsService.save(userDetails);
+    }
+
+    @PostMapping("login")
+    public String loginUser(@RequestBody SSDUserDetails userDetails){
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword()));
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            return jwtService.generateToken(userDetails.getUsername());
+        }
+        else {
+            return"Login Failed";
+        }
     }
 }
